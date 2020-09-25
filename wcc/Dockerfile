@@ -5,7 +5,7 @@
 #
 # Description: This file is used to build Oracle WebCenter Content image
 #
-# Pull base image from the Oracle Container Registry or Docker Store and tag the name as 'oracle/fmw-infrastructure:12.2.1.3'
+# Pull base image from the Oracle Container Registry or Docker Store and tag the name as 'oracle/fmw-infrastructure:12.2.1.4'
 # -------------------------------------------------------------
 FROM container-registry.oracle.com/middleware/fmw-infrastructure:12.2.1.4
 #FROM fmw-infrastructure
@@ -38,15 +38,22 @@ ENV	WLS_HOME=$WL_HOME/server \
 
 # Copy packages, scripts, and zip binary
 # -------------------------------------------------------------
-COPY --chown=oracle install.file oraInst.loc $CONTENT_PKG $ROOT_HOME/
+COPY install.file oraInst.loc $CONTENT_PKG $ROOT_HOME/
 
 # Install missing packages
 # -------------------------------------------------------------
 RUN yum install -y unzip hostname && rm -rf /var/cache/yum
 
-#Install packages and adjust file permissions, go to /u01 as user 'oracle' to proceed with WLS installation
+# Install packages and adjust file permissions, go to /u01 as user 'oracle' to proceed with WLS installation
 # -------------------------------------------------------------
 RUN mkdir -p $ORACLE_HOME/logs && chmod a+xr $ROOT_HOME
+
+# Copy additional scripts and make them executable
+# -------------------------------------------------------------
+RUN chown oracle:oracle $ROOT_HOME/install.file $ROOT_HOME/oraInst.loc $ROOT_HOME/$CONTENT_PKG $ROOT_HOME/
+COPY wait-for createDomain.py createDomainAndStart.sh $CONTAINER_SCRIPT_DIR/
+RUN chown -R oracle:oracle $CONTAINER_SCRIPT_DIR/
+RUN chmod +x $CONTAINER_SCRIPT_DIR/*.sh
 
 # Install as user
 # -------------------------------------------------------------
@@ -63,10 +70,6 @@ RUN printf "%s *%s\n" $CONTENT_SHA1 $CONTENT_PKG | sha1sum -c \
 
 WORKDIR $ORACLE_HOME
 
-# Copy scripts and make them executable
-USER root
-COPY --chown=oracle wait-for createDomain.py createDomainAndStart.sh $CONTAINER_SCRIPT_DIR/
-RUN chmod +x $CONTAINER_SCRIPT_DIR/*.sh
 USER oracle
 
 # Set defaults
