@@ -74,25 +74,26 @@ This repository contains a [Dockerfile](wcc/Dockerfile) for building [Oracle Web
 Oracle provides a pre-built image which can be imported directly into OpenShift from the Oracle Container Registry (container-registry.oracle.com/database/enterprise:12.2.0.1).
 
 1. Create a new OpenShift secret which will log us into the Oracle Container Registry:
-`oc create secret docker-registry oracle-container-registry-secret --docker-server=container-registry.oracle.com --docker-username=YourOracleAccountEmailGoesHere --docker-password=YourOracleAccountPasswordGoesHere --docker-email=YourOracleAccountEmailGoesHere
+
+    `oc create secret docker-registry oracle-container-registry-secret --docker-server=container-registry.oracle.com --docker-username=YourOracleAccountEmailGoesHere --docker-password=YourOracleAccountPasswordGoesHere --docker-email=YourOracleAccountEmailGoesHere`
 
     In the above command, be sure to replace `YourOracleAccountEmailGoesHere` with your Oracle account email and `YourOracleAccountPasswordGoesHere` with your Oracle account password.
 
 2. Import the Oracle Database Image
-`oc import-image oracle12c:12.2.0.1 -confirm reference-policy='local' -from=container-registry.oracle.com/database/enterprise:12.2.0.1`
 
-    If successful, you will see output similar to this:
-    ????????????
+    `oc import-image oracle12c:12.2.0.1 -confirm reference-policy='local' -from=container-registry.oracle.com/database/enterprise:12.2.0.1`
 
 3. Tag the Oracle Database Image
-`oc tag oracle12c:12.2.0.1 oracle12c:latest`
+
+    `oc tag oracle12c:12.2.0.1 oracle12c:latest`
 
     If successful, you will see output similar to this:
 
 ### Deploy Oracle Database and Validate
 
 1. Run the following to deploy Oracle Database:
-`oc process -f db/db-deployment.yaml | oc create -f -`
+
+    `oc process -f db/db-deployment.yaml | oc create -f -`
 
     If you changed your OpenShift project name from `oracle-apps`, then you will need to edit the `db-deployment.yaml` file and alter `namespace` to be your project name.
 
@@ -102,8 +103,9 @@ Oracle provides a pre-built image which can be imported directly into OpenShift 
         The pod name should be similar to `oracle12c-1-bltft`
 
     2. Check the logs either via the pod *Logs* tab in the Web Console or by running this command:
-    `oc logs oracle12c-1-bltft -c oracle12c`
-        ![Pods Logs Screen ](imgs/dbdeploy4.png)
+
+        `oc logs oracle12c-1-bltft -c oracle12c`
+            ![Pods Logs Screen ](imgs/dbdeploy4.png)
 
 3. Validate that you can login to the Oracle Database view `sqlplus`. Go to the pod, then the Terminal tab and run the following 2 commands:
 
@@ -139,10 +141,12 @@ Oracle provides a pre-built image which can be imported directly into OpenShift 
 1. Navigate to the `wcc` directory in the directory where you extracted `wcc-on-openshift.zip` (e.g. `/tmp/wcc-on-openshift-master/wcc`).
 
 2. Run this command:
+
     `docker build .`
 
 3. You should eventually(~ 15-20 minutes later) see a message indicating success:
-??????
+
+    `Successfully built 1c527f5befa9`
 
 #### Push the Image to OpenShift
 
